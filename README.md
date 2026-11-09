@@ -9,6 +9,13 @@ puanlar ve kareleri `iyi`, `orta`, `kotu` klasörlerine ayırır. Üç sürüm d
 | `bg_sequence_v2.py` | v1 + kısıtlı büyük bölge nakli + güven haritası | aynı | Veri seti üretimi için önerilen |
 | `bg_sequence_v3.py` | v2 + sahneye özel öğrenilen düzeltici + isteğe bağlı ir_lama | + torch | En yüksek kalite, en yavaş |
 
+## Örnek
+
+Gerçek LTIR dron dizisi (300 kare, sabit kamera). Soldan sağa: orijinal (kırmızı kutu silinen bölge), v1, v2, v3.
+Bu dizide v1: 22 iyi, 5 orta, 3 kötü; v2 ve v3 kötü kareleri büyük bölge nakliyle kurtardı: 25 iyi, 5 orta, 0 kötü.
+
+![v1, v2, v3 karşılaştırma](karsilastirma_v1_v2_v3.png)
+
 ## Kullanım
 
 ```bash
