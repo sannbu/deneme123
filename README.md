@@ -27,9 +27,10 @@ Sağda güven haritası (beyaz dokunulmadı, gri dolgu).
 
 ### v3: öğrenilmiş IR dolgu
 
- obje bölgeden hiç çıkmazsa zamansal kaynak yoktur. v1/v2 yalnız komşu piksellerden
-doldurur (bulanık leke), v3 eğittiğimiz `ir_lama` modeliyle doldurur. Bu dizide 10 karenin 2'sinde model seçildi;
-kalanlarda araç çok büyük olduğu için o da yetmedi ve kareler `kotu` kaldı.
+Obje bölgeden hiç çıkmazsa arka plan hiçbir karede görünmez, zamansal kaynak yoktur. v1/v2 bu durumda yalnız
+komşu piksellerden doldurur ve bulanık bir leke kalır. v3, LLVIP, LTIR ve RainSnow üzerinde eğittiğimiz
+`ir_lama` modeliyle kaldırım çizgisini, gölgeyi, ağaçları ve zemin dokusunu yeniden çizer. Dört farklı sahne:
+park halindeki araç (gerçek durum) ve üç insan sahnesi (zamansal kaynaklar kapatılarak, `--methods spatial`).
 
 ![v3 öğrenilmiş dolgu](v3_ogrenilmis_dolgu.png)
 
