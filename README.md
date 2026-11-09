@@ -16,6 +16,24 @@ Bu dizide v1: 22 iyi, 5 orta, 3 kötü; v2 ve v3 kötü kareleri büyük bölge 
 
 ![v1, v2, v3 karşılaştırma](karsilastirma_v1_v2_v3.png)
 
+### Sürümlerin farkı görsellerle
+
+**v1, 7 aday aynı objede:** her aday objenin yanındaki boş bölgelerde (prob) denenir; yeşil çerçeveli olan
+gerçek piksellere en yakın sonucu verip seçilendir.
+
+![v1 yöntemleri](v1_yontemler.png)
+
+**v2, büyük bölge nakli:** v1'in kötü bulduğu bölge büyütülüp objesiz bir kareden taşınır; kare çöpe gitmez.
+Sağda güven haritası (beyaz dokunulmadı, gri dolgu).
+
+![v2 bölge nakli](v2_bolge_nakli.png)
+
+**v3, öğrenilmiş IR dolgu:** obje bölgeden hiç çıkmazsa zamansal kaynak yoktur. v1/v2 yalnız komşu piksellerden
+doldurur (bulanık leke), v3 eğittiğimiz `ir_lama` modeliyle doldurur. Bu dizide 10 karenin 2'sinde model seçildi;
+kalanlarda araç çok büyük olduğu için o da yetmedi ve kareler `kotu` kaldı.
+
+![v3 öğrenilmiş dolgu](v3_ogrenilmis_dolgu.png)
+
 ## Kullanım
 
 ```bash
@@ -80,7 +98,7 @@ kenarları Poisson (gradyan alanı) birleştirmeyle düzeltilir. Uzamsal dolgu y
    dışında kalan hale), dikiş, doku uyumu. Karedeki en kötü bölge karenin kategorisini belirler.
 
 **v2:** Kusurlu (kalıntı/dikiş) bölge 2-3 kat büyütülüp tamamen boş bir kareden Poisson ile taşınır; bağışçının
-pencere kenarı mevcut kareyle gürültü düzeyinde uyuşmuyorsa yapılmaz, nakil en fazla "orta" sayılır. Güven haritası
+pencere kenarı mevcut kareyle gürültü düzeyinde uyuşmuyorsa yapılmaz, nakil puanı 0.8 ile sınırlıdır. Güven haritası
 tek bir kötü obje yüzünden karenin tamamen çöpe gitmemesi içindir: eğitimde 0 olan yerler yok sayılabilir.
 
 **v3:** Dizinin bir alt kümesindeki problarla küçük bir U-Net bu sahnede "aday dolgu → gerçek piksel" düzeltmesini
