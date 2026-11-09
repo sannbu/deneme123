@@ -1,0 +1,5 @@
+numpy
+opencv-python
+scipy
+# yalnız v3 için (düzeltici ve --lama):
+torch
