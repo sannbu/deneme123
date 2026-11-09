@@ -41,6 +41,55 @@ Bu dizide v1: 22 iyi, 5 orta, 3 kötü; v2 ve v3 kötü kareleri büyük bölge 
 ![v1, v2, v3 karşılaştırma](karsilastirma_v1_v2_v3.png)
 
 
+## Kullanılan veri setleri
+
+### ir_lama modelinin eğitimi
+
+Başlangıç modeli **big-lama**'dır (LaMa, Suvorov ve ark., WACV 2022; renkli Places2 görüntüleriyle eğitilmiş,
+Apache-2.0, https://github.com/advimman/lama). Bu model üç termal veri setiyle IR görüntülere ince ayarlandı.
+
+| Veri seti | İçerik | Çözünürlük / bit | Eğitim çifti | Doğrulama çifti |
+|---|---|---|---|---|
+| **LLVIP** | 26 sabit kamera noktası, gece/düşük ışıkta yayalar. 15.488 görünür-IR çifti (12.025 eğitim + 3.463 test), yalnız IR kısmı kullanıldı | 1280×1024, 8 bit | 14.944 (noktalar 01-18, 25) | 5.279 (noktalar 19-24, 26) |
+| **LTIR v1.0** | Linköping termal takip dizileri; 16 bit sürümü olan 13 dizi | 640×480, 16 bit | 3.395 (car, crouching, crowd, depthwise_crossing, jacket, quadrocopter2, selma) | 703 (crossing, trees) |
+| **AAU RainSnow** | 7 kavşakta yağmur ve kar altında 22 trafik dizisi; 2.198 etiketli termal kare, 13.297 kutu | 640×480, 8 bit | 5.928 (egensevej 1-5, hadsundvej 1-2, hasserisvej 1-3, hobrovej-1, ostre 1-4) | 2.047 (hjorringvej 1-4, ringvej 1-3) |
+| **Toplam** | | | **24.267** | **8.029** |
+
+**Çiftler nasıl üretildi:**
+- Her dizi önce zamansal kes-yapıştırla (`bg_clean.py`) temizlendi.
+- Her silinen objenin çevresinden kutunun 1,75 katı bir pencere kesildi. Pencere, maske dışındaki piksellere göre
+  0-1 aralığına çekilip 256×256'ya ölçeklendi; böylece 8 ve 16 bit veri aynı ölçeğe geldi. Maske, objenin kutusudur.
+- Yalnız güvenilir yamalar alındı: zamansal medyan arka plandan 6 sigmadan fazla sapan piksel oranı %1'in altında
+  olmalı. Yani "doğru cevap" tahmin değil, gerçekten görülmüş arka plandır.
+- Eğitim ve doğrulama sahneye göre ayrıldı: hiçbir kamera noktası veya dizi iki tarafta birden yok.
+
+**Eğitim:** 6000 adım, batch 4, öğrenme oranı 1e-5, tohum 0 (ayrıntılar `models/ir_lama.json`).
+Doğrulama hatası (maske içi normalize L1, düşük daha iyi):
+
+| | LLVIP | LTIR | RainSnow | Ortalama |
+|---|---|---|---|---|
+| big-lama (eğitimden önce) | 0.0718 | 0.0575 | 0.0928 | 0.0740 |
+| ir_lama (6000 adım) | 0.0608 | 0.0383 | 0.0825 | **0.0606 (%18 daha iyi)** |
+
+### Scriptlerin denenmesi (bg_sequence v1, v2, v3)
+
+| Veri | Ne için | Ayrıntı |
+|---|---|---|
+| **Sentetik bulut düzeneği** | Sayısal ölçüm (Test sonuçları tablosu) | 600 kare, 640×512, 16 bit. Zemin gerçek LTIR 16 bit dokusu, gökyüzü sürüklenen ve biçim değiştiren sentetik bulutlar, haleli 5 sıcak obje (0,1-3,2 piksel/kare). Gerçek arka plan bilindiği için hata doğrudan ölçülür |
+| **FLIR ADAS v2** (video_thermal_test) | Yarı sentetik test | Araca takılı kamera; 8 video, 3.749 kare, 62.317 kutu, 640×512 ham 16 bit TIFF. Aracın durduğu bölümlerin gerçek göğü üzerine sentetik hareketli objeler eklendi |
+| **LTIR dizileri** | Gerçek veride gözle inceleme, bu sayfadaki görseller | quadrocopter2 (dron), car, crossing, depthwise_crossing, jacket, crouching, trees, selma |
+| **AAU RainSnow, LLVIP** | Gerçek veride gözle inceleme | Kavşak ve yaya sahneleri |
+
+### Kaynaklar ve lisanslar
+
+- **LLVIP:** Jia ve ark., "LLVIP: A Visible-infrared Paired Dataset for Low-light Vision", ICCV Workshops 2021. https://github.com/bupt-ai-cz/LLVIP
+- **LTIR:** Berg, Ahlberg, Felsberg, "A Thermal Object Tracking Benchmark", AVSS 2015 (Linköping Üniversitesi).
+- **AAU RainSnow:** Bahnsen ve Moeslund, "Rain Removal in Traffic Surveillance: Does it Matter?", IEEE T-ITS 2018. Kaggle: aalborguniversity/aau-rainsnow, CC-BY 4.0.
+- **FLIR ADAS v2:** Teledyne FLIR Free ADAS Thermal Dataset v2, kullanım koşulları: https://www.flir.com/oem/adas/adas-dataset-agree/
+- **LaMa / big-lama:** Suvorov ve ark., "Resolution-robust Large Mask Inpainting with Fourier Convolutions", WACV 2022, Apache-2.0.
+
+Veri setlerinin kendisi bu depoda yoktur; yalnız eğitilmiş model ve scriptler vardır.
+
 ## Kullanım
 
 ```bash
