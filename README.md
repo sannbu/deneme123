@@ -9,6 +9,30 @@ puanlar ve kareleri `iyi`, `orta`, `kotu` klasörlerine ayırır. Üç sürüm d
 | `bg_sequence_v2.py` | v1 + kısıtlı büyük bölge nakli + güven haritası | aynı | Veri seti üretimi için önerilen |
 | `bg_sequence_v3.py` | v2 + sahneye özel öğrenilen düzeltici + isteğe bağlı ir_lama | + torch | En yüksek kalite, en yavaş |
 
+## Sürümler ne yapar
+
+### v1: 7 aday, en iyisi seçilir
+
+ her aday objenin yanındaki boş bölgelerde (prob) denenir; yeşil çerçeveli olan
+gerçek piksellere en yakın sonucu verip seçilendir.
+
+![v1 yöntemleri](v1_yontemler.png)
+
+### v2: kötü bölge kurtarılır
+
+ v1'in kötü bulduğu bölge büyütülüp objesiz bir kareden taşınır; kare çöpe gitmez.
+Sağda güven haritası (beyaz dokunulmadı, gri dolgu).
+
+![v2 bölge nakli](v2_bolge_nakli.png)
+
+### v3: öğrenilmiş IR dolgu
+
+ obje bölgeden hiç çıkmazsa zamansal kaynak yoktur. v1/v2 yalnız komşu piksellerden
+doldurur (bulanık leke), v3 eğittiğimiz `ir_lama` modeliyle doldurur. Bu dizide 10 karenin 2'sinde model seçildi;
+kalanlarda araç çok büyük olduğu için o da yetmedi ve kareler `kotu` kaldı.
+
+![v3 öğrenilmiş dolgu](v3_ogrenilmis_dolgu.png)
+
 ## Örnek
 
 Gerçek LTIR dron dizisi (300 kare, sabit kamera). Soldan sağa: orijinal (kırmızı kutu silinen bölge), v1, v2, v3.
@@ -16,23 +40,6 @@ Bu dizide v1: 22 iyi, 5 orta, 3 kötü; v2 ve v3 kötü kareleri büyük bölge 
 
 ![v1, v2, v3 karşılaştırma](karsilastirma_v1_v2_v3.png)
 
-### Sürümlerin farkı görsellerle
-
-**v1, 7 aday aynı objede:** her aday objenin yanındaki boş bölgelerde (prob) denenir; yeşil çerçeveli olan
-gerçek piksellere en yakın sonucu verip seçilendir.
-
-![v1 yöntemleri](v1_yontemler.png)
-
-**v2, büyük bölge nakli:** v1'in kötü bulduğu bölge büyütülüp objesiz bir kareden taşınır; kare çöpe gitmez.
-Sağda güven haritası (beyaz dokunulmadı, gri dolgu).
-
-![v2 bölge nakli](v2_bolge_nakli.png)
-
-**v3, öğrenilmiş IR dolgu:** obje bölgeden hiç çıkmazsa zamansal kaynak yoktur. v1/v2 yalnız komşu piksellerden
-doldurur (bulanık leke), v3 eğittiğimiz `ir_lama` modeliyle doldurur. Bu dizide 10 karenin 2'sinde model seçildi;
-kalanlarda araç çok büyük olduğu için o da yetmedi ve kareler `kotu` kaldı.
-
-![v3 öğrenilmiş dolgu](v3_ogrenilmis_dolgu.png)
 
 ## Kullanım
 
